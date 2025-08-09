@@ -59,6 +59,10 @@
 
     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 
+    // --- NEW: Reusable HTML Snippets for Tables ---
+        const tableLoadingSpinner = `<tr><td colspan="5" class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>`;
+        const tableEmptyState = (message, colspan = 5) => `<tr><td colspan="${colspan}" class="text-center text-muted">${message}</td></tr>`;
+
     function timeFormatter(timeStr) {
         if (!timeStr) return 'N/A';
         const [hour, minute] = timeStr.split(':');
@@ -70,6 +74,12 @@
         const approvedTbody = document.getElementById("approved-events-table");
         const rejectedTbody = document.getElementById("rejected-events-table");
         const userTbody = document.getElementById("user-table");
+
+          // --- FIX: Show spinners immediately ---
+            pendingTbody.innerHTML = tableLoadingSpinner;
+            approvedTbody.innerHTML = tableLoadingSpinner;
+            rejectedTbody.innerHTML = tableLoadingSpinner;
+            userTbody.innerHTML = tableLoadingSpinner.replace('5', '4'); // User table has 4 columns
 
         try {
             const [eventsRes, usersRes] = await Promise.all([
@@ -126,6 +136,13 @@
                         </td>
                     </tr>`;
             });
+
+             // --- FIX: Use emptyState message if tables are empty ---
+                if (pendingTbody.innerHTML === '') pendingTbody.innerHTML = tableEmptyState('No pending proposals.');
+                if (approvedTbody.innerHTML === '') approvedTbody.innerHTML = tableEmptyState('No approved events.', 4);
+                if (rejectedTbody.innerHTML === '') rejectedTbody.innerHTML = tableEmptyState('No rejected events.', 4);
+                if (userTbody.innerHTML === '') userTbody.innerHTML = tableEmptyState('No users found.', 4);
+
 
         } catch (error) { console.error("Failed to load admin data:", error); }
     }

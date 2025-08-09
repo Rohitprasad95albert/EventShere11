@@ -112,15 +112,23 @@
                 alert(error.message);
             }
         }
-
         function showQr(qrId) {
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
-            const fullUrl = `${window.location.origin}/qr-attendance.html?qrId=${qrId}`;
-            new QRCode(qrContainer, { text: fullUrl, width: 256, height: 256 });
+
+            // PERMANENT FIX: This version manually adds the "/frontend/" path
+            // to the URL, making it work every time.
+            const fullUrl = `${window.location.origin}/frontend/qr-attendance.html?qrId=${qrId}`;
+
+            new QRCode(qrContainer, {
+                text: fullUrl,
+                width: 256,
+                height: 256
+            });
             const modal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
             modal.show();
         }
+       
 
         async function loadEvents() {
             const listContainer = document.getElementById('events-list');

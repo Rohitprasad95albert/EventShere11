@@ -11,16 +11,18 @@
     <header id="navbar-container"></header>
     <div class="container mt-4">
         <h3>Upcoming Events</h3>
-        <div class="row" id="upcoming-events"><p class="text-muted">Loading...</p></div>
+        <div class="row" id="upcoming-events"></div>
         
         <h3 class="mt-5">Your Registered Events</h3>
-        <div class="row" id="registered-events"><p class="text-muted">Loading...</p></div>
+        <div class="row" id="registered-events"></div>
+
+        <h3 class="mt-5">Recommended For You</h3>
+        <div class="row" id="recommended-events"></div>
 
         <h3 class="mt-5">Past Events</h3>
-        <div class="row" id="past-events"><p class="text-muted">Loading...</p></div>
+        <div class="row" id="past-events"></div>
         <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center mt-4" id="pagination-container">
-            </ul>
+            <ul class="pagination justify-content-center mt-4" id="pagination-container"></ul>
         </nav>
     </div>
 
@@ -30,28 +32,26 @@
         if (!userId) window.location.href = "login.html";
 
         const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
-        let allPastEvents = []; // Store all past events for pagination
-        const eventsPerPage = 6; // Show 6 past events per page
+        let allPastEvents = [];
+        const eventsPerPage = 6;
 
-        // --- NEW: Direct Registration from Dashboard ---
+        const loadingSpinner = `<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
+        const emptyState = (message) => `<div class="col-12"><div class="text-center p-4 bg-light rounded"><p class="text-muted mb-0">${message}</p></div></div>`;
+        
         async function handleDirectRegistration(eventId, eventTitle, buttonElement) {
-            if (!confirm(`Are you sure you want to register for "${eventTitle}"?`)) {
-                return;
-            }
+            if (!confirm(`Are you sure you want to register for "${eventTitle}"?`)) return;
             buttonElement.disabled = true;
             buttonElement.innerText = 'Registering...';
             try {
                 const res = await fetch(`${BASE_URL}/api/events/${eventId}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...headers },
-                    body: JSON.stringify({ collegeName: 'N/A' }) // College name not needed for non-inter-college events here
+                    body: JSON.stringify({ collegeName: 'N/A' })
                 });
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error);
-                
-                // Success: Visually move the card
                 alert('Successfully registered!');
-                loadDashboard(); // Reload the entire dashboard to move the card
+                loadAllData();
             } catch (error) {
                 alert(`Registration failed: ${error.message}`);
                 buttonElement.disabled = false;
@@ -59,18 +59,39 @@
             }
         }
         
-        async function downloadCertificate(eventId, eventTitle) { /* This function is correct and remains intact */ }
+        async function downloadCertificate(eventId, eventTitle) {
+            try {
+                const res = await fetch(`${BASE_URL}/api/certificates/download/${eventId}/${userId}`, { headers });
+                if (!res.ok) throw new Error((await res.json()).error || 'Download failed');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Certificate_${eventTitle.replace(/\s/g, '_')}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert(`Download failed: ${error.message}`);
+            }
+        }
 
-        // --- UPDATED: Renders cards with new button logic ---
         function renderEventCard(event, isForPastEvents = false) {
             if (!event || !event.title) return '';
-
             const isRegistered = (event.attendees || []).some(a => a.userId?._id === userId);
             const hasAttended = isRegistered && (event.attendees || []).find(a => a.userId?._id === userId)?.isAttended;
             
+            const eventDateTime = new Date(event.date);
+            if(event.time) {
+                const [hours, minutes] = event.time.split(':');
+                eventDateTime.setHours(hours, minutes, 0, 0);
+            }
+            const isPast = eventDateTime < new Date();
+
             let buttonHtml;
             if (isRegistered) {
-                buttonHtml = (hasAttended)
+                buttonHtml = (isPast && hasAttended)
                     ? `<button onclick="downloadCertificate('${event._id}', \`${event.title}\`)" class="btn btn-success w-100 mt-auto">Download Certificate</button>`
                     : `<a href="event.html?id=${event._id}" class="btn btn-info w-100 mt-auto">View Details</a>`;
             } else if (isForPastEvents) {
@@ -95,36 +116,25 @@
                 </div>`;
         }
         
-        // --- NEW: Renders a specific page of past events ---
         function renderPastEvents(page) {
             const pastContainer = document.getElementById("past-events");
-            pastContainer.innerHTML = '';
-            
             const start = (page - 1) * eventsPerPage;
             const end = start + eventsPerPage;
             const paginatedEvents = allPastEvents.slice(start, end);
-
             let pastHtml = '';
             paginatedEvents.forEach(event => {
                 pastHtml += renderEventCard(event, true);
             });
-            pastContainer.innerHTML = pastHtml || '<p class="text-muted col-12">No past events found.</p>';
-
-            // Update active state on pagination buttons
-            document.querySelectorAll('#pagination-container .page-item').forEach(item => {
-                item.classList.remove('active');
-            });
+            pastContainer.innerHTML = pastHtml || emptyState('No past events found.');
+            document.querySelectorAll('#pagination-container .page-item').forEach(item => item.classList.remove('active'));
             document.querySelector(`#pagination-container .page-item[data-page='${page}']`)?.classList.add('active');
         }
 
-        // --- NEW: Renders the pagination buttons ---
         function renderPagination() {
             const paginationContainer = document.getElementById("pagination-container");
             paginationContainer.innerHTML = '';
             const pageCount = Math.ceil(allPastEvents.length / eventsPerPage);
-
-            if (pageCount <= 1) return; // Don't show pagination for a single page
-
+            if (pageCount <= 1) return;
             for (let i = 1; i <= pageCount; i++) {
                 const li = document.createElement('li');
                 li.className = 'page-item';
@@ -137,14 +147,19 @@
         async function loadDashboard() {
             const upcomingContainer = document.getElementById("upcoming-events");
             const registeredContainer = document.getElementById("registered-events");
+            const pastContainer = document.getElementById("past-events");
+            
+            upcomingContainer.innerHTML = loadingSpinner;
+            registeredContainer.innerHTML = loadingSpinner;
+            pastContainer.innerHTML = loadingSpinner;
+
             try {
                 const res = await fetch(`${BASE_URL}/api/events`, { headers });
                 if (!res.ok) throw new Error("Failed to fetch event data.");
                 const allEvents = await res.json();
-
                 let upcomingHtml = '';
                 let registeredHtml = '';
-                allPastEvents = []; // Reset the global array
+                allPastEvents = [];
 
                 allEvents.filter(e => e.status === 'approved').forEach(event => {
                     const isRegistered = (event.attendees || []).some(a => a.userId?._id === userId);
@@ -154,32 +169,50 @@
                         eventDateTime.setHours(hours, minutes, 0, 0);
                     }
                     const isPast = eventDateTime < new Date();
-
                     if (isRegistered) {
                         registeredHtml += renderEventCard(event);
                     } else if (isPast) {
-                        allPastEvents.push(event); // Add to our past events list
+                        allPastEvents.push(event);
                     } else {
                         upcomingHtml += renderEventCard(event);
                     }
                 });
-
-                upcomingContainer.innerHTML = upcomingHtml || '<p class="text-muted col-12">No new events to join.</p>';
-                registeredContainer.innerHTML = registeredHtml || '<p class="text-muted col-12">You have not registered for any events.</p>';
                 
-                // Sort past events by most recent first
+                upcomingContainer.innerHTML = upcomingHtml || emptyState('No new events to join at the moment.');
+                registeredContainer.innerHTML = registeredHtml || emptyState('You have not registered for any events yet.');
+                
                 allPastEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                // Render the first page of past events and the pagination controls
                 renderPastEvents(1);
                 renderPagination();
-
             } catch (error) {
                 upcomingContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
             }
         }
 
-        document.addEventListener("DOMContentLoaded", loadDashboard);
+        async function loadRecommendations() {
+            const recommendedContainer = document.getElementById("recommended-events");
+            recommendedContainer.innerHTML = `<div class="col-12 text-center"><div class="spinner-border spinner-border-sm text-secondary" role="status"></div></div>`;
+            try {
+                const res = await fetch(`${BASE_URL}/api/events/recommended`, { headers });
+                if (!res.ok) throw new Error('Could not load recommendations.');
+                const recommendedEvents = await res.json();
+                let recommendedHtml = '';
+                recommendedEvents.forEach(event => {
+                    recommendedHtml += renderEventCard(event);
+                });
+                recommendedContainer.innerHTML = recommendedHtml || emptyState('Attend events to get personalized recommendations!');
+            } catch (error) {
+                recommendedContainer.innerHTML = '';
+                console.error("Could not load recommendations:", error.message);
+            }
+        }
+        
+        function loadAllData() {
+            loadDashboard();
+            loadRecommendations();
+        }
+
+        document.addEventListener("DOMContentLoaded", loadAllData);
     </script>
     <script src="navbar.js"></script>
 </body>
