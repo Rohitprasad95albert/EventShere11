@@ -17,8 +17,30 @@
 
     <section class="container my-5">
         <h2 class="text-center mb-4">Upcoming Approved Events</h2>
+
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <input type="text" id="search-bar" class="form-control" placeholder="Search for events by title...">
+            </div>
+            <div class="col-md-4">
+                <select id="category-filter" class="form-select">
+                    <option value="All">All Categories</option>
+                    <option value="Tech">Tech</option>
+                    <option value="Cultural">Cultural</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Workshop">Workshop</option>
+                    <option value="Seminar">Seminar</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
         <div class="row" id="events-container">
-            <p class="text-center text-muted">Loading events...</p>
+            <div class="col-12 text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -28,51 +50,89 @@
 
     <script src="config.js"></script>
     <script>
-        async function loadUpcomingEvents() {
+        let allApprovedEvents = []; // Store all events to enable filtering without re-fetching
+
+        // This function now handles filtering and displaying events
+        function renderEvents() {
+            const eventsContainer = document.getElementById('events-container');
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const categoryFilter = document.getElementById('category-filter').value;
+
+            const now = new Date();
+            
+            const filteredEvents = allApprovedEvents.filter(event => {
+                const eventDateTime = new Date(event.date);
+                if (event.time) {
+                    const [hours, minutes] = event.time.split(':');
+                    eventDateTime.setHours(hours, minutes, 0, 0);
+                }
+
+                const matchesSearch = event.title.toLowerCase().includes(searchTerm);
+                const matchesCategory = categoryFilter === 'All' || event.type === categoryFilter;
+                const isUpcoming = eventDateTime >= now;
+
+                return matchesSearch && matchesCategory && isUpcoming;
+            });
+
+            let eventsHtml = '';
+            if (filteredEvents.length > 0) {
+                filteredEvents.forEach(event => {
+                    eventsHtml += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <img src="${BASE_URL}${event.posterUrl}" class="card-img-top" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200.png?text=EventSphere';">
+                                <div class="card-body">
+                                    <h5 class="card-title">${event.title}</h5>
+                                    <p class="card-text">${new Date(event.date).toLocaleDateString()}</p>
+                                    <a href="event.html?id=${event._id}" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                eventsHtml = `<div class="col-12"><div class="text-center p-4 bg-light rounded"><p class="text-muted mb-0">No upcoming events match your criteria.</p></div></div>`;
+            }
+            eventsContainer.innerHTML = eventsHtml;
+        }
+         // --- NEW: Reusable event card renderer ---
+        function renderEventCard(event) {
+            // ... same renderEventCard function from student-dashboard.html ...
+            // It will now display the average rating
+            let ratingHtml = '';
+            if (event.averageRating) {
+                ratingHtml = `<span class="badge bg-warning float-end">${event.averageRating.toFixed(1)} ★</span>`;
+            }
+             return `
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="${BASE_URL}${event.posterUrl}" ... >
+                        <div class="card-body">
+                            <h5 class="card-title">${event.title} ${ratingHtml}</h5>
+                            </div>
+                    </div>
+                </div>`;
+        }
+        async function initializeHomepage() {
             const eventsContainer = document.getElementById('events-container');
             try {
                 const res = await fetch(`${BASE_URL}/api/events`);
                 if (!res.ok) throw new Error('Failed to fetch events');
                 const allEvents = await res.json();
                 
-                let eventsHtml = '';
-                // --- START OF FIX: More accurate time checking ---
-                const now = new Date(); // Get the current date and time
+                allApprovedEvents = allEvents.filter(e => e.status === 'approved');
+                
+                renderEvents(); // Render the initial list
 
-                allEvents
-                    .filter(event => {
-                        if (event.status !== 'approved' || !event.date || !event.time) {
-                            return false;
-                        }
-                        // Create a full Date object with the event's specific time
-                        const eventDateTime = new Date(event.date);
-                        const [hours, minutes] = event.time.split(':');
-                        eventDateTime.setHours(hours, minutes, 0, 0);
-                        
-                        // Only include the event if its time is in the future
-                        return eventDateTime >= now;
-                    })
-                    .forEach(event => {
-                // --- END OF FIX ---
-                        eventsHtml += `
-                            <div class="col-md-4 mb-4">
-                                <div class="card h-100 shadow-sm">
-                                    <img src="${BASE_URL}${event.posterUrl}" class="card-img-top" style="height: 200px; object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200.png?text=EventSphere';">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${event.title}</h5>
-                                        <p class="card-text">${new Date(event.date).toLocaleDateString()}</p>
-                                        <a href="event.html?id=${event._id}" class="btn btn-primary">View Details</a>
-                                    </div>
-                                </div>
-                            </div>`;
-                    });
+                // Add event listeners for real-time filtering
+                document.getElementById('search-bar').addEventListener('input', renderEvents);
+                document.getElementById('category-filter').addEventListener('change', renderEvents);
 
-                eventsContainer.innerHTML = eventsHtml || '<p class="text-center text-muted">No upcoming events at this time.</p>';
             } catch (error) {
                 eventsContainer.innerHTML = `<p class="text-center text-danger">${error.message}</p>`;
             }
         }
-        document.addEventListener("DOMContentLoaded", loadUpcomingEvents);
+        
+        document.addEventListener("DOMContentLoaded", initializeHomepage);
     </script>
     <script src="navbar.js"></script>
 </body>

@@ -1,175 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard - EventSphere</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - EventSphere</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header id="navbar-container"></header>
-
-  <div class="container mt-4">
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation"><button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button">Pending Proposals</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button">Approved Events</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button">Rejected Events</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">User Management</button></li>
-    </ul>
-
-    <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active p-3 border border-top-0" id="pending">
-            <h3>Pending Event Proposals</h3>
-            <table class="table table-striped">
-                <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Time</th><th>Actions</th></tr></thead>
-                <tbody id="pending-events-table"></tbody>
-            </table>
-        </div>
-        <div class="tab-pane fade p-3 border border-top-0" id="approved">
-            <h3>Approved Events</h3>
-            <table class="table table-hover">
-                <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Status</th></tr></thead>
-                <tbody id="approved-events-table"></tbody>
-            </table>
-        </div>
-        <div class="tab-pane fade p-3 border border-top-0" id="rejected">
-            <h3>Rejected Events</h3>
-            <table class="table table-hover">
-                <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Status</th></tr></thead>
-                <tbody id="rejected-events-table"></tbody>
-            </table>
-        </div>
-        <div class="tab-pane fade p-3 border border-top-0" id="users">
-            <h3>User Management</h3>
-            <table class="table table-bordered">
-              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Change Role</th></tr></thead>
-              <tbody id="user-table"></tbody>
-            </table>
+    <header id="navbar-container"></header>
+    <div class="container mt-4">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pending">Pending Proposals</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#approved">Approved Events</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#rejected">Rejected Events</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#users">User Management</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#financials">Financials</button></li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active p-3 border border-top-0" id="pending">
+                <h3>Pending Event Proposals</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Club</th>
+                                <th>Date & Time</th>
+                                <th>Details</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-events-table"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade p-3 border border-top-0" id="approved">
+                <h3>Approved Events</h3>
+                <table class="table table-hover">
+                    <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Status</th></tr></thead>
+                    <tbody id="approved-events-table"></tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade p-3 border border-top-0" id="rejected">
+                <h3>Rejected Events</h3>
+                <table class="table table-hover">
+                    <thead><tr><th>Title</th><th>Club</th><th>Date</th><th>Status</th></tr></thead>
+                    <tbody id="rejected-events-table"></tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade p-3 border border-top-0" id="users">
+                <h3>User Management</h3>
+                <table class="table table-bordered">
+                  <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Change Role</th></tr></thead>
+                  <tbody id="user-table"></tbody>
+                </table>
+            </div>
+             <div class="tab-pane fade p-3 border border-top-0" id="financials">
+                <h3>Event Financial Summary</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Event Title</th>
+                                <th>Organizing Club</th>
+                                <th>Fee per Person</th>
+                                <th>Total Registrations</th>
+                                <th>Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financials-table"></tbody>
+                        <tfoot class="table-group-divider">
+                            <tr>
+                                <th colspan="4" class="text-end">Grand Total:</th>
+                                <th id="grand-total-revenue">₹0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="config.js"></script>
-<script>
-    const token = localStorage.getItem("token");
-    const currentAdminId = localStorage.getItem("userId");
-    if (localStorage.getItem("role") !== 'admin') window.location.href = "login.html";
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        const token = localStorage.getItem("token");
+        const currentAdminId = localStorage.getItem("userId");
+        if (localStorage.getItem("role") !== 'admin') window.location.href = "login.html";
 
-    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        const tableLoadingSpinner = (colspan = 5) => `<tr><td colspan="${colspan}" class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>`;
+        const tableEmptyState = (message, colspan = 5) => `<tr><td colspan="${colspan}" class="text-center text-muted p-4">${message}</td></tr>`;
 
-    // --- NEW: Reusable HTML Snippets for Tables ---
-        const tableLoadingSpinner = `<tr><td colspan="5" class="text-center"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>`;
-        const tableEmptyState = (message, colspan = 5) => `<tr><td colspan="${colspan}" class="text-center text-muted">${message}</td></tr>`;
+        function timeFormatter(timeStr) {
+            if (!timeStr) return 'N/A';
+            const [hour, minute] = timeStr.split(':');
+            return new Date(1970, 0, 1, hour, minute).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        }
 
-    function timeFormatter(timeStr) {
-        if (!timeStr) return 'N/A';
-        const [hour, minute] = timeStr.split(':');
-        return new Date(1970, 0, 1, hour, minute).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    }
-
-    async function loadAdminData() {
-        const pendingTbody = document.getElementById("pending-events-table");
-        const approvedTbody = document.getElementById("approved-events-table");
-        const rejectedTbody = document.getElementById("rejected-events-table");
-        const userTbody = document.getElementById("user-table");
-
-          // --- FIX: Show spinners immediately ---
-            pendingTbody.innerHTML = tableLoadingSpinner;
-            approvedTbody.innerHTML = tableLoadingSpinner;
-            rejectedTbody.innerHTML = tableLoadingSpinner;
-            userTbody.innerHTML = tableLoadingSpinner.replace('5', '4'); // User table has 4 columns
-
-        try {
-            const [eventsRes, usersRes] = await Promise.all([
-                fetch(`${BASE_URL}/api/events`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`${BASE_URL}/api/auth/users`, { headers: { 'Authorization': `Bearer ${token}` } })
-            ]);
-            const events = await eventsRes.json();
-            const users = await usersRes.json();
+        async function loadAdminData() {
+            const pendingTbody = document.getElementById("pending-events-table");
+            const approvedTbody = document.getElementById("approved-events-table");
+            const rejectedTbody = document.getElementById("rejected-events-table");
+            const userTbody = document.getElementById("user-table");
             
-            pendingTbody.innerHTML = approvedTbody.innerHTML = rejectedTbody.innerHTML = '';
+            pendingTbody.innerHTML = tableLoadingSpinner(5);
+            approvedTbody.innerHTML = tableLoadingSpinner(5);
+            rejectedTbody.innerHTML = tableLoadingSpinner(4);
+            userTbody.innerHTML = tableLoadingSpinner(4);
 
-            events.forEach(event => {
-                let eventRow = '';
-                if (event.status === 'pending') {
-                    // FIX: Added time column for pending events
-                    eventRow = `
-                        <tr>
-                            <td>${event.title}</td>
-                            <td>${event.createdBy?.name || 'N/A'}</td>
-                            <td>${new Date(event.date).toLocaleDateString()}</td>
-                            <td>${timeFormatter(event.time)}</td>
-                            <td>
-                                <button class="btn btn-success btn-sm" onclick="updateEventStatus('${event._id}', 'approved')">Approve</button>
-                                <button class="btn btn-danger btn-sm" onclick="updateEventStatus('${event._id}', 'rejected')">Reject</button>
-                            </td>
-                        </tr>`;
-                    pendingTbody.innerHTML += eventRow;
+            try {
+                const [eventsRes, usersRes] = await Promise.all([
+                    fetch(`${BASE_URL}/api/events`, { headers }),
+                    fetch(`${BASE_URL}/api/auth/users`, { headers })
+                ]);
+                const events = await eventsRes.json();
+                const users = await usersRes.json();
+                
+                pendingTbody.innerHTML = '';
+                approvedTbody.innerHTML = '';
+                rejectedTbody.innerHTML = '';
+                userTbody.innerHTML = '';
+
+                let pendingCount = 0, approvedCount = 0, rejectedCount = 0;
+
+                events.forEach(event => {
+                    if (event.status === 'pending') {
+                        pendingCount++;
+                        pendingTbody.innerHTML += `
+                            <tr>
+                                <td><strong>${event.title}</strong></td><td>${event.createdBy?.name || 'N/A'}</td>
+                                <td>${new Date(event.date).toLocaleDateString()}<br><small class="text-muted">${timeFormatter(event.time)}</small></td>
+                                <td><small>Fee: ₹${event.registrationFee || 0}<br>Limit: ${event.registrationLimit || 'None'}<br>Mode: ${event.eventMode}<br>Type: ${event.competitionType}</small></td>
+                                <td><button class="btn btn-success btn-sm w-100" onclick="updateEventStatus('${event._id}', 'approved')">Approve</button><button class="btn btn-danger btn-sm w-100 mt-1" onclick="updateEventStatus('${event._id}', 'rejected')">Reject</button></td>
+                            </tr>`;
+                    } else if (event.status === 'approved') {
+                        approvedCount++;
+                        const eventDateTime = new Date(event.date);
+                        if (event.time) eventDateTime.setHours(...event.time.split(':'));
+                        const isPast = eventDateTime < new Date();
+                        approvedTbody.innerHTML += `
+                            <tr>
+                                <td>${event.title}</td><td>${event.createdBy?.name || 'N/A'}</td><td>${new Date(event.date).toLocaleDateString()}</td>
+                                <td><span class="badge bg-success">Approved</span></td>
+                                <td>${!isPast ? `<button class="btn btn-outline-danger btn-sm" onclick="cancelEvent('${event._id}')">Cancel</button>` : '<span class="text-muted">Finished</span>'}</td>
+                            </tr>`;
+                    } else { // rejected or cancelled
+                        rejectedCount++;
+                        const statusColor = event.status === 'rejected' ? 'danger' : 'dark';
+                        rejectedTbody.innerHTML += `
+                            <tr>
+                                <td>${event.title}</td><td>${event.createdBy?.name || 'N/A'}</td><td>${new Date(event.date).toLocaleDateString()}</td>
+                                <td><span class="badge bg-${statusColor}">${event.status}</span></td>
+                            </tr>`;
+                    }
+                });
+                
+                users.forEach(user => {
+                    userTbody.innerHTML += `<tr><td>${user.name}</td><td>${user.email}</td><td>${user.role}</td><td>${user._id === currentAdminId ? 'Cannot change own role' : `<select class="form-select form-select-sm" onchange="changeUserRole('${user._id}', this.value)"><option value="student" ${user.role === 'student' ? 'selected' : ''}>Student</option><option value="club" ${user.role === 'club' ? 'selected' : ''}>Club</option><option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option></select>`}</td></tr>`;
+                });
+                
+                if (pendingCount === 0) pendingTbody.innerHTML = tableEmptyState('No pending proposals.', 5);
+                if (approvedCount === 0) approvedTbody.innerHTML = tableEmptyState('No approved events.', 5);
+                if (rejectedCount === 0) rejectedTbody.innerHTML = tableEmptyState('No rejected or cancelled events.', 4);
+                if (users.length === 0) userTbody.innerHTML = tableEmptyState('No users found.', 4);
+
+            } catch (error) { console.error("Failed to load admin data:", error); }
+        }
+
+
+        async function cancelEvent(eventId) {
+            const reason = prompt("Please provide a reason for cancelling this event (optional, can be left blank):");
+            if (reason === null) return; // User clicked cancel on the prompt
+
+            try {
+                const res = await fetch(`${BASE_URL}/api/events/${eventId}/cancel`, {
+                    method: "PATCH",
+                    headers: { 'Content-Type': 'application/json', ...headers },
+                    body: JSON.stringify({ reason })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.error);
+                alert('Event cancelled successfully!');
+                loadAdminData(); // Refresh the dashboard
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        }
+        async function updateEventStatus(eventId, status) {
+            try {
+                const res = await fetch(`${BASE_URL}/api/events/${eventId}/status`, {
+                  method: "PATCH", headers, body: JSON.stringify({ status })
+                });
+                if (!res.ok) throw new Error('Failed to update status');
+                loadAdminData();
+            } catch (err) { alert(`Error: ${err.message}`); }
+        }
+
+        async function changeUserRole(userId, newRole) {
+            if (!confirm(`Change this user's role to "${newRole}"?`)) { loadAdminData(); return; }
+            try {
+                const res = await fetch(`${BASE_URL}/api/auth/users/${userId}/role`, {
+                    method: "PATCH", headers, body: JSON.stringify({ role: newRole })
+                });
+                if (!res.ok) throw new Error('Failed to update role');
+                loadAdminData();
+            } catch (err) { alert(`Error: ${err.message}`); loadAdminData(); }
+        }
+
+        async function loadFinancials() {
+            const financialsTbody = document.getElementById("financials-table");
+            const grandTotalEl = document.getElementById("grand-total-revenue");
+            financialsTbody.innerHTML = `<tr><td colspan="5" class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div></td></tr>`;
+            try {
+                const res = await fetch(`${BASE_URL}/api/analytics/financials`, { headers });
+                const summary = await res.json();
+                
+                financialsTbody.innerHTML = '';
+                let grandTotal = 0;
+                
+                if (summary.length === 0) {
+                    financialsTbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted p-4">No paid events found.</td></tr>`;
                 } else {
-                    eventRow = `
-                        <tr>
-                            <td>${event.title}</td>
-                            <td>${event.createdBy?.name || 'N/A'}</td>
-                            <td>${new Date(event.date).toLocaleDateString()}</td>
-                            <td><span class="badge bg-${event.status === 'approved' ? 'success' : 'danger'}">${event.status}</span></td>
-                        </tr>`;
-                    if (event.status === 'approved') approvedTbody.innerHTML += eventRow;
-                    else if (event.status === 'rejected') rejectedTbody.innerHTML += eventRow;
+                    summary.forEach(item => {
+                        financialsTbody.innerHTML += `
+                            <tr>
+                                <td>${item.title}</td>
+                                <td>${item.club}</td>
+                                <td>₹${item.fee.toFixed(2)}</td>
+                                <td>${item.registrations}</td>
+                                <td>₹${item.totalRevenue.toFixed(2)}</td>
+                            </tr>`;
+                        grandTotal += item.totalRevenue;
+                    });
                 }
-            });
-
-            userTbody.innerHTML = '';
-            users.forEach(user => {
-                userTbody.innerHTML += `
-                    <tr>
-                        <td>${user.name}</td><td>${user.email}</td>
-                        <td>${user.role}</td>
-                        <td>
-                          ${user._id === currentAdminId ? 'Cannot change own role' : `
-                          <select class="form-select form-select-sm" onchange="changeUserRole('${user._id}', this.value)">
-                            <option value="student" ${user.role === 'student' ? 'selected' : ''}>Student</option>
-                            <option value="club" ${user.role === 'club' ? 'selected' : ''}>Club</option>
-                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                          </select>`}
-                        </td>
-                    </tr>`;
-            });
-
-             // --- FIX: Use emptyState message if tables are empty ---
-                if (pendingTbody.innerHTML === '') pendingTbody.innerHTML = tableEmptyState('No pending proposals.');
-                if (approvedTbody.innerHTML === '') approvedTbody.innerHTML = tableEmptyState('No approved events.', 4);
-                if (rejectedTbody.innerHTML === '') rejectedTbody.innerHTML = tableEmptyState('No rejected events.', 4);
-                if (userTbody.innerHTML === '') userTbody.innerHTML = tableEmptyState('No users found.', 4);
-
-
-        } catch (error) { console.error("Failed to load admin data:", error); }
-    }
-
-    async function updateEventStatus(eventId, status) {
-        try {
-            const res = await fetch(`${BASE_URL}/api/events/${eventId}/status`, {
-              method: "PATCH", headers, body: JSON.stringify({ status })
-            });
-            if (!res.ok) throw new Error('Failed to update status');
-            loadAdminData();
-        } catch (err) { alert(`Error: ${err.message}`); }
-    }
-
-    async function changeUserRole(userId, newRole) {
-        if (!confirm(`Change this user's role to "${newRole}"?`)) { loadAdminData(); return; }
-        try {
-            const res = await fetch(`${BASE_URL}/api/auth/users/${userId}/role`, {
-                method: "PATCH", headers, body: JSON.stringify({ role: newRole })
-            });
-            if (!res.ok) throw new Error('Failed to update role');
-            loadAdminData();
-        } catch (err) { alert(`Error: ${err.message}`); loadAdminData(); }
-    }
-
-    document.addEventListener("DOMContentLoaded", loadAdminData);
-</script>
-<script src="navbar.js"></script>
+                grandTotalEl.innerText = `₹${grandTotal.toFixed(2)}`;
+            } catch (error) {
+                financialsTbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Failed to load financial data.</td></tr>`;
+            }
+        }
+        //document.addEventListener("DOMContentLoaded", loadAdminData);
+          document.addEventListener("DOMContentLoaded", () => {
+            loadAdminData(); // This is your existing function to load events and users
+            loadFinancials(); // This is the new function to load the financial data
+        });
+    </script>
+    <script src="navbar.js"></script>
 </body>
 </html>

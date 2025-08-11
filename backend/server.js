@@ -8,31 +8,24 @@ const db = require('./db');
 
 const app = express();
 
-// --- START OF FIX: SIMPLIFIED AND CORRECTED CORS CONFIGURATION ---
+
+
+// CORS Configuration
+const allowedOrigins = [
+  'https://event-projrct-frontend.onrender.com',
+  'http://127.0.0.1:5500',
+  'http://localhost:5500'
+];
 app.use(cors({
-  origin: [
-    'https://event-projrct-frontend.onrender.com', // Your deployed frontend
-    'http://127.0.0.1:5500',                      // Your VS Code Live Server
-    'http://localhost:5500'                          // Your VS Code Live Server
-  ],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-// CORS configuration
-//const allowedOrigins = [
-  //'https://event-projrct-frontend.onrender.com',
-  //'http://127.0.0.1:5500',
-  //'http://localhost:5500'
-//];
-//app.use(cors({
-  //origin: function (origin, callback) {
-    //if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      //callback(null, true);
-    //} else {
-      //callback(new Error('Not allowed by CORS'));
-    //}
-  //},
-  //credentials: true
-//}));
 
 // Middleware
 app.use(express.json());
@@ -42,7 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, '../frontend')));
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Import routes
@@ -60,6 +53,14 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/feedback', feedbackRoutes);
+
+
+
+// For any other request, serve the main frontend page
+app.use(express.static(path.join(__dirname, '../frontend')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

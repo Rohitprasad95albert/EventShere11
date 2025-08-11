@@ -16,7 +16,7 @@ const router = express.Router();
 // --- GOOGLE OAUTH ROUTES ---
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login.html' }), (req, res) => {
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: 'http://127.0.0.1:5500/login.html' }), (req, res) => {
     const token = jwt.sign({ id: req.user._id, role: req.user.role }, process.env.JWT_SECRET, { expiresIn: '8h' });
     const script = `
         <script>
@@ -25,7 +25,8 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
             window.localStorage.setItem('role', '${req.user.role}');
             window.localStorage.setItem('name', '${req.user.name}');
             window.localStorage.setItem('email', '${req.user.email}');
-            window.location.href = '/frontend/student-dashboard.html';
+            // This is the crucial fix: Use the full, absolute URL for the redirect
+            window.location.href = 'http://127.0.0.1:5500/student-dashboard.html';
         </script>
     `;
     res.send(script);
